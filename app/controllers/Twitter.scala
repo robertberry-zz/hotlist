@@ -8,6 +8,9 @@ import java.util.concurrent.atomic.AtomicReference
 import twitter4j.auth.RequestToken
 import play.api.data._
 import play.api.data.Forms._
+import models.{TwitterAccessToken, AppDB}
+import lib.TwitterAuthListener
+import org.squeryl.PrimitiveTypeMode.inTransaction
 
 object Twitter extends Controller {
   type TokenWithAuthUrl = (RequestToken, String)
@@ -60,6 +63,11 @@ object Twitter extends Controller {
             accessToken match {
               case Success(t) => {
                 // store to persist token here
+                inTransaction {
+                  AppDB.twitterAccessTokenTable insert TwitterAccessToken(t)
+                }
+
+                TwitterAuthListener.onAuthenticate(t)
 
                 Logger.info("User %s (%d) authenticated against Twitter: %s, %s".format(
                   t.getScreenName, t.getUserId, t.getToken, t.getTokenSecret))
