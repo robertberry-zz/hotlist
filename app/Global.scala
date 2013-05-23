@@ -5,7 +5,7 @@ import org.squeryl.internals.DatabaseAdapter
 import org.squeryl.{Session, SessionFactory}
 import play.api._
 import play.api.db.DB
-import twitter4j.TwitterFactory
+import twitter4j.{TwitterStreamFactory, TwitterFactory}
 import org.squeryl.PrimitiveTypeMode.inTransaction
 
 object Global extends GlobalSettings {
@@ -14,6 +14,7 @@ object Global extends GlobalSettings {
 
     /** Set OAuth key and secret for Twitter */
     val twitter = TwitterFactory.getSingleton
+    val twitterStream = TwitterStreamFactory.getSingleton
 
     for {
       key <- Play.current.configuration.getString("twitter.oauth.key")
@@ -21,6 +22,7 @@ object Global extends GlobalSettings {
     } {
       Logger.info("Setting Twitter key and secret from configuration")
       twitter.setOAuthConsumer(key, secret)
+      twitterStream.setOAuthConsumer(key, secret)
     }
 
     /** DB connection */
@@ -40,7 +42,9 @@ object Global extends GlobalSettings {
 
         twitter.setOAuthAccessToken(token)
 
-        Logger.info("Authenticated against Twitter")
+        val screenName = twitter.getScreenName
+
+        Logger.info("Authenticated against Twitter for %s".format(screenName))
 
         TwitterAuthListener.onAuthenticate(token)
       }
