@@ -1,0 +1,20 @@
+@(form: Form[(String)], authUrl: String)
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Authenticate with Twitter</title>
+</head>
+<body>
+
+<p>Please <a href="@authUrl" target="_blank">authenticate the app with Twitter</a> then enter the pin you
+    are given below</p>
+
+@helper.form(action = routes.Twitter.authenticate) {
+  @helper.inputText(form("pin"))
+
+  <input type="submit" value="Authenticate" />
+}
+
+</body>
+</html>
