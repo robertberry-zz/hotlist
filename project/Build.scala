@@ -11,6 +11,7 @@ object ApplicationBuild extends Build {
     // Add your project dependencies here,
     jdbc,
     anorm,
+    "com.typesafe.akka" % "akka-agent_2.10" % "2.1.4",
     "org.twitter4j" % "twitter4j-core" % "3.0.3",
     "org.twitter4j" % "twitter4j-async" % "3.0.3",
     "org.twitter4j" % "twitter4j-stream" % "3.0.3",
