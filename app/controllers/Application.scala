@@ -2,11 +2,16 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import twitter4j.TwitterFactory
 
 object Application extends Controller {
   
   def index = Action {
-    Ok(views.html.index("Your new application is ready."))
+    if (TwitterFactory.getSingleton.getAuthorization.isEnabled) {
+      Ok("You are authorized on Twitter")
+    } else {
+      Redirect(routes.Twitter.index)
+    }
   }
   
 }
