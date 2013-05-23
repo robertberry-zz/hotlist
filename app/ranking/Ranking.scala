@@ -2,12 +2,12 @@ package ranking
 
 import org.joda.time.DateTime
 import scala.math.log10
+import twitter4j.Status
 
 object Ranking {
-// TODO implement depending on eventual interface
-//  def rank(tweets: List[Tweets]): List[Tweets] = {
-//    tweets sortBy { t => score(t.shares, t.age) }
-//  }
+  def rank(links: List[Link]): List[Link] = {
+    links sortBy { l => score(l.shares, l.date) }
+  }
 
   def score(shares: Double, date: DateTime): Double = {
     val seconds = date.getMillis / 1000
@@ -17,3 +17,5 @@ object Ranking {
     logShares + seconds / gravity
   }
 }
+
+case class Link(url: String, shares: Double, date: DateTime)
