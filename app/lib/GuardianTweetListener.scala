@@ -2,10 +2,16 @@ package lib
 
 import twitter4j.{Status, StatusDeletionNotice, StallWarning, StatusListener}
 import play.api.Logger
+import org.joda.time.DateTime
+import ranking.{Link, HotList, StatusUtils}
 
 class GuardianTweetListener extends StatusListener {
   def onStatus(status: Status) {
     Logger.info("Got status: %s says %s".format(status.getUser.getScreenName, status.getText))
+
+    val urls = StatusUtils.extractUrls(status.getText)
+    val date = new DateTime(status.getCreatedAt)
+    urls foreach { url => HotList.rank(Link(url, 1, date)) }
   }
 
   def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {
