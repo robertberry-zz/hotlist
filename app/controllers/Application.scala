@@ -7,8 +7,12 @@ import twitter4j.TwitterFactory
 object Application extends Controller {
   
   def index = Action {
-    if (TwitterFactory.getSingleton.getAuthorization.isEnabled) {
-      Ok("You are authorized on Twitter")
+    val twitter = TwitterFactory.getSingleton
+
+    if (twitter.getAuthorization.isEnabled) {
+      val username = twitter.getScreenName
+
+      Ok("You are authorized on Twitter as " + username)
     } else {
       Redirect(routes.Twitter.index)
     }

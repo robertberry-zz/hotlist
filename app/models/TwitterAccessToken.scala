@@ -1,6 +1,7 @@
 package models
 
-import org.squeryl.{Schema, KeyedEntity}
+import org.squeryl.KeyedEntity
+import org.squeryl.PrimitiveTypeMode._
 import twitter4j.auth.AccessToken
 
 class TwitterAccessToken(
@@ -14,3 +15,11 @@ class TwitterAccessToken(
   }
 }
 
+object TwitterAccessToken {
+  def apply(accessToken: AccessToken): TwitterAccessToken =
+    new TwitterAccessToken(accessToken.getToken, accessToken.getTokenSecret)
+
+  def last: Option[TwitterAccessToken] = (from(AppDB.twitterAccessTokenTable) { (accessToken) =>
+      select(accessToken) orderBy(accessToken.id desc)
+    }).headOption
+}
