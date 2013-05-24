@@ -14,7 +14,7 @@ object LinkResolver {
       val svc = url(link)
 
       val actualLinkFuture = for {
-        response <- Http(svc)
+        response <- Http(svc.setFollowRedirects(true))
       } yield response.getUri.toString
 
       actualLinkFuture onSuccess {
