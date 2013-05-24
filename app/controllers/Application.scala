@@ -12,7 +12,6 @@ object Application extends Controller {
 
     if (twitter.getAuthorization.isEnabled) {
       val username = twitter.getScreenName
-      val links = HotList.getHottest.take(20)
       Redirect(routes.Application.hotlist)
     } else {
       Redirect(routes.Twitter.index)
