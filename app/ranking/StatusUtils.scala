@@ -11,6 +11,15 @@ object StatusUtils {
       url => Try { new URL(url) }.isSuccess
     }
 
+    // don't include Guardian urls as we're tracking other content that is popular
+    matches filterNot { isGuardianUrl_? _ }
+
     matches.toList
+  }
+
+  def isGuardianUrl_?(url: String): Boolean = {
+    val host = new URL(url).getHost
+
+    host.contains("guardian.co.uk") || host.contains("theguardian.com")
   }
 }

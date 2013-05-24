@@ -26,8 +26,7 @@
                     <div class="thumbnail">
                         <img src="@link.image.getOrElse("assets/img/gu-logo.png")" alt="gu logo">
                         <div class="caption">
-                            <h3>@link.title.getOrElse("No title")</h3>
-                            <p>@link.url</p>
+                          <h3><a href="@link.url">@link.title.getOrElse("No title")</a></h3>
                         </div>
                     </div>
                 </li>

@@ -6,10 +6,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import dispatch._
 import org.jsoup.Jsoup
 import play.api.Logger
-import scala.util.{Failure, Try}
+import scala.util.{Success, Failure, Try}
+import java.net.{URI, URL}
 
 case class LinkSummary(title: String, imageLink: String)
 
+/** Retrieves title and first image for an url */
 object LinkScraper {
 
   private val links = new ConcurrentHashMap[String, LinkSummary]().asScala
@@ -35,7 +37,15 @@ object LinkScraper {
         }
 
         val firstImage = Try {
-          document.select("img").first().attr("src")
+          val img = document.select("img").first().attr("src")
+
+          // ok so it might be a relative link ...
+          Try {
+            new URL(img)
+          } match {
+            case Success(_) => img
+            case Failure(_) => new URI(link).resolve(img).toString
+          }
         }
 
         firstImage match {
