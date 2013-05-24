@@ -4,6 +4,7 @@ import twitter4j.{Status, StatusDeletionNotice, StallWarning, StatusListener}
 import play.api.Logger
 import org.joda.time.DateTime
 import ranking.{HotList, StatusUtils}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class GuardianTweetListener extends StatusListener {
   def onStatus(status: Status) {
@@ -11,7 +12,11 @@ class GuardianTweetListener extends StatusListener {
 
     val urls = StatusUtils.extractUrls(status.getText)
     val date = new DateTime(status.getCreatedAt)
-    urls foreach { url => HotList.recordShare(url, date) }
+    urls foreach { url =>
+      LinkResolver.resolveLink(url) onSuccess {
+        case actualUrl: String => HotList.recordShare(actualUrl, date)
+      }
+    }
   }
 
   def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {
@@ -32,5 +37,7 @@ class GuardianTweetListener extends StatusListener {
 
   def onException(error: Exception) {
     Logger.warn("Encountered an exception listening for Guardian tweets: %s".format(error.getMessage))
+
+    throw error
   }
 }
