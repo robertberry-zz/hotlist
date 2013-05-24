@@ -21,8 +21,12 @@ object Global extends GlobalSettings {
       secret <- Play.current.configuration.getString("twitter.oauth.secret")
     } {
       Logger.info("Setting Twitter key and secret from configuration")
-      twitter.setOAuthConsumer(key, secret)
-      twitterStream.setOAuthConsumer(key, secret)
+      try {
+        twitter.setOAuthConsumer(key, secret)
+        twitterStream.setOAuthConsumer(key, secret)
+      } catch {
+        case e: Throwable =>
+      }
     }
 
     /** DB connection */
@@ -40,7 +44,11 @@ object Global extends GlobalSettings {
       } {
         Logger.info("Loaded Twitter access token from database, authenticating ...")
 
-        twitter.setOAuthAccessToken(token)
+        try {
+          twitter.setOAuthAccessToken(token)
+        } catch {
+          case e: Throwable =>
+        }
 
         val screenName = twitter.getScreenName
 

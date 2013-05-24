@@ -17,32 +17,31 @@
 
     <div class="container">
         <h1>@@@screenName hotlist</h1>
-
-        <div class="fluid-row">
-            <ul class="thumbnails">
                 @for(link <- links) {
 
-                <li class="span3">
-                    <div class="thumbnail">
-                        <img src="@link.image.getOrElse("assets/img/gu-logo.png")" alt="gu logo">
-                        <div class="caption">
-                          <h3><a href="@link.url">@link.title.getOrElse("No title")</a></h3>
-                            @link.shares match {
-                              case 1 => {
-                                <p>1 share</p>
-                              }
+                <div class="fluid-row">
+                    <div class="span12">
+                        <hr>
+                        <div class="fluid-row">
+                            <div class="span4">
+                                <img src="@link.image.getOrElse("assets/img/gu-logo.png")" alt="gu logo">
+                            </div>
+                            <div class="span6">
+                                <h4><a href="@link.url">@link.title.getOrElse("No title")</a></h4>
+                                    @link.shares match {
+                                    case 1 => {
+                                    <p>1 share</p>
+                                    }
 
-                              case n => {
-                                <p>@n shares</p>
-                              }
-                            }
+                                    case n => {
+                                    <p>@n shares</p>
+                                    }
+                                        }
+                                </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </li>
-
                 }
-            </ul>
-        </div>
 
     </div>
 
