@@ -72,7 +72,7 @@ object Twitter extends Controller {
                 Logger.info("User %s (%d) authenticated against Twitter: %s, %s".format(
                   t.getScreenName, t.getUserId, t.getToken, t.getTokenSecret))
 
-                Ok("Successfully authenticated")
+                Redirect(routes.Application.hotlist)
               }
               case Failure(error) => {
                 Ok("Could not authenticate: %s".format(error.getMessage))
