@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConverters._
 import java.util.concurrent.atomic.AtomicInteger
 import org.joda.time.DateTime
+import play.api.Logger
 
 object HotList {
   implicit val actorSystem = Akka.system()
@@ -30,7 +31,11 @@ object HotList {
     val logShares = log10(nShares).toInt
     val gravity = 45000
 
-    logShares + seconds / gravity
+    val rank = logShares + seconds / gravity
+
+    Logger.info("New rank for %s: %d".format(link, rank))
+
+    rank
   }
 
   /** Record a share for the given link, initially seen at the given time */
