@@ -3,7 +3,7 @@ package lib
 import twitter4j.{Status, StatusDeletionNotice, StallWarning, StatusListener}
 import play.api.Logger
 import org.joda.time.DateTime
-import ranking.{Link, HotList, StatusUtils}
+import ranking.{HotList, StatusUtils}
 
 class GuardianTweetListener extends StatusListener {
   def onStatus(status: Status) {
@@ -11,7 +11,7 @@ class GuardianTweetListener extends StatusListener {
 
     val urls = StatusUtils.extractUrls(status.getText)
     val date = new DateTime(status.getCreatedAt)
-    urls foreach { url => HotList.rank(Link(url, 1, date)) }
+    urls foreach { url => HotList.recordShare(url, date) }
   }
 
   def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {

@@ -4,27 +4,53 @@ import scala.collection.immutable.TreeSet
 import akka.agent.Agent
 import play.libs.Akka
 import scala.math._
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConverters._
+import java.util.concurrent.atomic.AtomicInteger
+import org.joda.time.DateTime
 
 object HotList {
   implicit val actorSystem = Akka.system()
 
-  private val rankings = Agent((TreeSet.empty[(Int, Link)], Map.empty[Link, Int]))
+  private val rankings = Agent((TreeSet.empty[(Int, String)], Map.empty[String, Int]))
 
-  private def calculateRank(link: Link): Int = {
-    val seconds = (link.date.getMillis / 1000).toInt
-    val logShares = log10(link.shares).toInt
+  private val shares = new ConcurrentHashMap[String, AtomicInteger]().asScala
+
+  private val firstSeen = new ConcurrentHashMap[String, DateTime]().asScala
+
+  private def calculateRank(link: String): Int = {
+    val age = firstSeen.getOrElse(link, {
+      throw new RuntimeException("Age not recorded for link - should never occur")
+    })
+    val nShares = shares.getOrElse(link, {
+      throw new RuntimeException("Shares not recorded for link - should never occur")
+    }).get
+
+    val seconds = (age.getMillis / 1000).toInt
+    val logShares = log10(nShares).toInt
     val gravity = 45000
 
     logShares + seconds / gravity
   }
 
-  /** Adds the link if not present and updates its ranking */
-  def rank(link: Link) {
+  /** Record a share for the given link, initially seen at the given time */
+  def recordShare(link: String, date: DateTime) {
+    firstSeen.putIfAbsent(link, date)
+
+    shares.putIfAbsent(link, new AtomicInteger(1)) match {
+      case Some(numberOfShares) => numberOfShares.incrementAndGet()
+      case _ => // pass
+    }
+
+    rank(link)
+  }
+
+  /** Updates the ranking for a link (eventually) */
+  private def rank(link: String) {
     rankings send { pair =>
       val hotList = pair._1
       val ranking = pair._2
 
-      // TODO need to include previous score somehow
       val newRank = calculateRank(link)
 
       val newHotList = (hotList - (ranking.getOrElse(link, 0) -> link)) + (newRank -> link)
@@ -34,7 +60,7 @@ object HotList {
   }
 
   /** Returns a list of the current hottest links and their score */
-  def getHottest: Stream[(Link, Int)] = {
+  def getHottest: Stream[(String, Int)] = {
     (rankings()._1.view map { case (score, link) => link -> score }).toStream
   }
 }
