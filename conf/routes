@@ -9,5 +9,8 @@ GET     /                           controllers.Application.index
 GET     /twitter                    controllers.Twitter.index
 POST    /twitter/authenticate       controllers.Twitter.authenticate
 
+# Hotlist
+GET     /hotlist                    controllers.Application.hotlist
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
