@@ -19,7 +19,7 @@ object Application extends Controller {
   }
 
   def hotlist = Action {
-    val links = HotList.getHottest take(20) sortBy { _._2 } map { _._1 }
+    val links = HotList.getHottest take(20)
     Ok(views.html.Hotlist.hotlist.render(links))
   }
 }

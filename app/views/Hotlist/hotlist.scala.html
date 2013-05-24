@@ -1,4 +1,4 @@
-@(links: Seq[String])
+@(links: Seq[ranking.Link])
 
 <!DOCTYPE html>
 <html>
@@ -20,42 +20,19 @@
 
         <div class="fluid-row">
             <ul class="thumbnails">
+                @for(link <- links) {
+
                 <li class="span3">
                     <div class="thumbnail">
-                        <img src="assets/img/gu-logo.png" alt="gu logo">
+                        <img src="@link.image.getOrElse("assets/img/gu-logo.png")" alt="gu logo">
                         <div class="caption">
-                            <h3>Thumbnail label</h3>
-                            <p>Thumbnail caption...</p>
+                            <h3>@link.title.getOrElse("No title")</h3>
+                            <p>@link.url</p>
                         </div>
                     </div>
                 </li>
-                <li class="span3">
-                    <div class="thumbnail">
-                        <img src="assets/img/gu-logo.png" alt="gu logo">
-                        <div class="caption">
-                            <h3>Thumbnail label</h3>
-                            <p>Thumbnail caption...</p>
-                        </div>
-                    </div>
-                </li>
-                <li class="span3">
-                    <div class="thumbnail">
-                        <img src="assets/img/gu-logo.png" alt="gu logo">
-                        <div class="caption">
-                            <h3>Thumbnail label</h3>
-                            <p>Thumbnail caption...</p>
-                        </div>
-                    </div>
-                </li>
-                <li class="span3">
-                    <div class="thumbnail">
-                        <img src="assets/img/gu-logo.png" alt="gu logo">
-                        <div class="caption">
-                            <h3>Thumbnail label</h3>
-                            <p>Thumbnail caption...</p>
-                        </div>
-                    </div>
-                </li>
+
+                }
             </ul>
         </div>
 

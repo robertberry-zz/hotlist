@@ -14,7 +14,11 @@ class GuardianTweetListener extends StatusListener {
     val date = new DateTime(status.getCreatedAt)
     urls foreach { url =>
       LinkResolver.resolveLink(url) onSuccess {
-        case actualUrl: String => HotList.recordShare(actualUrl, date)
+        case actualUrl: String => {
+          HotList.recordShare(actualUrl, date)
+          Last20Shares.addShare(Share(status.getUser.getScreenName, actualUrl))
+          LinkScraper.scrape(actualUrl)
+        }
       }
     }
   }

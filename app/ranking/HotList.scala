@@ -9,6 +9,7 @@ import scala.collection.JavaConverters._
 import java.util.concurrent.atomic.AtomicInteger
 import org.joda.time.DateTime
 import play.api.Logger
+import lib.LinkScraper
 
 object HotList {
   implicit val actorSystem = Akka.system()
@@ -65,7 +66,15 @@ object HotList {
   }
 
   /** Returns a list of the current hottest links and their score */
-  def getHottest: Stream[(String, Int)] = {
-    (rankings()._1.view map { case (score, link) => link -> score }).toStream
+  def getHottest: Stream[Link] = {
+    (rankings()._1.view map { case (score, link) =>
+      val summary = LinkScraper.getSummary(link)
+
+      Link(link,
+        summary map { _.title },
+        summary map { _.imageLink },
+        shares.get(link).map(_.get).getOrElse(1),
+        firstSeen.get(link).getOrElse(new DateTime()))
+    }).toStream
   }
 }

@@ -5,6 +5,9 @@
 # Home page
 GET     /                           controllers.Application.index
 
+# Links as they're posted
+GET     /sharing                    controllers.Sharing.index
+
 # Twitter authentication
 GET     /twitter                    controllers.Twitter.index
 POST    /twitter/authenticate       controllers.Twitter.authenticate
