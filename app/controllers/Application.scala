@@ -19,7 +19,7 @@ object Application extends Controller {
   }
 
   def hotlist = Action {
-    val links = HotList.getHottest take(20)
+    val links = HotList.getHottest(20)
     // TODO put screen name in better place
     Ok(views.html.Hotlist.hotlist.render(TwitterAuthListener.screenNameToFollow, links))
   }

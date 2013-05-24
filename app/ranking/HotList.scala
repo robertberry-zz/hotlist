@@ -20,6 +20,10 @@ object HotList {
 
   private val firstSeen = new ConcurrentHashMap[String, DateTime]().asScala
 
+  def log5(n: Double): Double = {
+    log(n) / log(5)
+  }
+
   private def calculateRank(link: String): Int = {
     val age = firstSeen.getOrElse(link, {
       throw new RuntimeException("Age not recorded for link - should never occur")
@@ -29,7 +33,7 @@ object HotList {
     }).get
 
     val seconds = (age.getMillis / 1000).toInt
-    val logShares = log10(nShares).toInt
+    val logShares = log5(nShares).toInt
     val gravity = 45000
 
     val rank = logShares + seconds / gravity
@@ -66,8 +70,8 @@ object HotList {
   }
 
   /** Returns a list of the current hottest links and their score */
-  def getHottest: Stream[Link] = {
-    (rankings()._1.view map { case (score, link) =>
+  def getHottest(n: Int): List[Link] = {
+    rankings()._1.takeRight(n).toList.reverse map { case (score, link) =>
       val summary = LinkScraper.getSummary(link)
 
       Link(link,
@@ -75,6 +79,6 @@ object HotList {
         summary map { _.imageLink },
         shares.get(link).map(_.get).getOrElse(1),
         firstSeen.get(link).getOrElse(new DateTime()))
-    }).toStream
+    }
   }
 }
