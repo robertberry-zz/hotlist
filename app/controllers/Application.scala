@@ -4,6 +4,7 @@ import play.api._
 import play.api.mvc._
 import twitter4j.TwitterFactory
 import ranking.HotList
+import lib.TwitterAuthListener
 
 object Application extends Controller {
   
@@ -11,7 +12,6 @@ object Application extends Controller {
     val twitter = TwitterFactory.getSingleton
 
     if (twitter.getAuthorization.isEnabled) {
-      val username = twitter.getScreenName
       Redirect(routes.Application.hotlist)
     } else {
       Redirect(routes.Twitter.index)
@@ -20,6 +20,7 @@ object Application extends Controller {
 
   def hotlist = Action {
     val links = HotList.getHottest take(20)
-    Ok(views.html.Hotlist.hotlist.render(links))
+    // TODO put screen name in better place
+    Ok(views.html.Hotlist.hotlist.render(TwitterAuthListener.screenNameToFollow, links))
   }
 }

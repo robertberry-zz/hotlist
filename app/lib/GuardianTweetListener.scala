@@ -24,7 +24,7 @@ class GuardianTweetListener extends StatusListener {
   }
 
   def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {
-    Logger.info("Status deleted: %s".format(statusDeletionNotice.getStatusId))
+    //Logger.info("Status deleted: %s".format(statusDeletionNotice.getStatusId))
   }
 
   def onTrackLimitationNotice(numberOfLimitedStatuses: Int) {

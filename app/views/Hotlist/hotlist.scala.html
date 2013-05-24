@@ -1,4 +1,4 @@
-@(links: Seq[ranking.Link])
+@(screenName: String, links: Seq[ranking.Link])
 
 <!DOCTYPE html>
 <html>
@@ -16,7 +16,7 @@
     </div>
 
     <div class="container">
-        <h1>@@gdndevelopers hotlist</h1>
+        <h1>@@@screenName hotlist</h1>
 
         <div class="fluid-row">
             <ul class="thumbnails">
@@ -27,6 +27,15 @@
                         <img src="@link.image.getOrElse("assets/img/gu-logo.png")" alt="gu logo">
                         <div class="caption">
                           <h3><a href="@link.url">@link.title.getOrElse("No title")</a></h3>
+                            @link.shares match {
+                              case 1 => {
+                                <p>1 share</p>
+                              }
+
+                              case n => {
+                                <p>@n shares</p>
+                              }
+                            }
                         </div>
                     </div>
                 </li>
