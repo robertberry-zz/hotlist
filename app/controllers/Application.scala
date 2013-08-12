@@ -5,6 +5,7 @@ import play.api.mvc._
 import twitter4j.TwitterFactory
 import ranking.HotList
 import lib.TwitterAuthListener
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Application extends Controller {
   
@@ -19,8 +20,10 @@ object Application extends Controller {
   }
 
   def hotlist = Action {
-    val links = HotList.getHottest(20)
-    // TODO put screen name in better place
-    Ok(views.html.Hotlist.hotlist.render(TwitterAuthListener.screenNameToFollow, links))
+    Async {
+      for {
+        links <- HotList.getHottest(20)
+      } yield Ok(views.html.Hotlist.hotlist.render(TwitterAuthListener.screenNameToFollow, links))
+    }
   }
 }

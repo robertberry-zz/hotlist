@@ -9,7 +9,12 @@ import scala.collection.JavaConverters._
 import java.util.concurrent.atomic.AtomicInteger
 import org.joda.time.DateTime
 import play.api.Logger
-import lib.LinkScraper
+import actors.{LinkTitleScraperActor, Actors}
+import akka.util.Timeout
+import akka.pattern.ask
+import scala.concurrent.duration._
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object HotList {
   implicit val actorSystem = Akka.system()
@@ -69,16 +74,20 @@ object HotList {
     }
   }
 
-  /** Returns a list of the current hottest links and their score */
-  def getHottest(n: Int): List[Link] = {
-    rankings()._1.takeRight(n).toList.reverse map { case (score, link) =>
-      val summary = LinkScraper.getSummary(link)
+  implicit val titleResolutionTimeout = Timeout(10 millis)
 
-      Link(link,
-        summary map { _.title },
-        summary map { _.imageLink },
-        shares.get(link).map(_.get).getOrElse(1),
-        firstSeen.get(link).getOrElse(new DateTime()))
-    }
+  /** Returns a list of the current hottest links and their score */
+  def getHottest(n: Int): Future[List[Link]] = {
+
+    Future.sequence(rankings()._1.takeRight(n).toList.reverse map { case (score, link) =>
+      /** Don't die if the title future dies; it's non-essential info */
+      val titleFuture = (Actors.titleScraper ? LinkTitleScraperActor.GetTitleFor(link)).mapTo[Option[String]] recover {
+        case _ => None
+      }
+
+      for {
+        title <- titleFuture
+      } yield Link(link, title, shares.get(link).map(_.get).getOrElse(1), firstSeen.get(link).getOrElse(new DateTime()))
+    })
   }
 }

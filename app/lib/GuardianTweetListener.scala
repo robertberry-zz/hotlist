@@ -5,19 +5,27 @@ import play.api.Logger
 import org.joda.time.DateTime
 import ranking.{HotList, StatusUtils}
 import scala.concurrent.ExecutionContext.Implicits.global
+import actors.{LinkTitleScraperActor, LinkResolverActor, Actors}
+import akka.pattern.ask
+import akka.util.Timeout
+import scala.concurrent.duration._
 
 class GuardianTweetListener extends StatusListener {
+  implicit val urlResolutionTimeout = Timeout(1 second)
+
   def onStatus(status: Status) {
     Logger.info("Got status: %s says %s".format(status.getUser.getScreenName, status.getText))
 
     val urls = StatusUtils.extractUrls(status.getText)
     val date = new DateTime(status.getCreatedAt)
     urls foreach { url =>
-      LinkResolver.resolveLink(url) onSuccess {
+      Actors.linkResolver ? LinkResolverActor.Resolve(url) onSuccess {
         case actualUrl: String => {
           HotList.recordShare(actualUrl, date)
           Last20Shares.addShare(Share(status.getUser.getScreenName, actualUrl))
-          LinkScraper.scrape(actualUrl)
+
+
+          Actors.titleScraper ! LinkTitleScraperActor.GetTitleFor(actualUrl)
         }
       }
     }

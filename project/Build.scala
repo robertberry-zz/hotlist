@@ -17,6 +17,7 @@ object ApplicationBuild extends Build {
     "org.twitter4j" % "twitter4j-core" % "3.0.3",
     "org.twitter4j" % "twitter4j-async" % "3.0.3",
     "org.twitter4j" % "twitter4j-stream" % "3.0.3",
+    "com.twitter" %% "util-collection" % "6.3.6",
     "org.squeryl" %% "squeryl" % "0.9.5-6",
     "postgresql" % "postgresql" % "9.1-901-1.jdbc4"
   )
