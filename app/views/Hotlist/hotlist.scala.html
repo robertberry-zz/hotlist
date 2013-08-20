@@ -8,6 +8,8 @@
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="assets/css/main.css" rel="stylesheet" media="screen">
     <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="assets/js/history.js"></script>
 </head>
 <body>
 
@@ -15,34 +17,34 @@
         <div class="navbar-inner"><div class="container"><a class="brand" href="#">Guardian Hotlist</a></div></div>
     </div>
 
+    <div style="display:none" id="history_hover">
+    </div>
+
     <div class="container">
         <h1>@@@screenName hotlist</h1>
-                @for(link <- links) {
+        @for(link <- links) {
+            <div class="fluid-row">
+                <div class="span12">
+                    <hr>
+                    <div class="fluid-row">
+                        <div class="span6">
+                            <h4><a href="@link.url" class="show_tweet_history">@link.title.getOrElse("No title")</a></h4>
+                            @link.shares match {
+                                case 1 => {
+                                <p>1 share</p>
+                                }
 
-                <div class="fluid-row">
-                    <div class="span12">
-                        <hr>
-                        <div class="fluid-row">
-                            <div class="span6">
-                                <h4><a href="@link.url">@link.title.getOrElse("No title")</a></h4>
-                                    @link.shares match {
-                                    case 1 => {
-                                    <p>1 share</p>
-                                    }
-
-                                    case n => {
-                                    <p>@n shares</p>
-                                    }
-                                        }
-                            </div>
+                                case n => {
+                                <p>@n shares</p>
+                                }
+                            }
                         </div>
                     </div>
                 </div>
-                }
-
+            </div>
+        }
     </div>
 
-    <script src="http://code.jquery.com/jquery.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
 </body>
 </html>

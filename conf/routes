@@ -3,17 +3,18 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET         /                            controllers.Application.index
 
 # Links as they're posted
-GET     /sharing                    controllers.Sharing.index
+GET         /sharing                     controllers.Sharing.index
 
 # Twitter authentication
-GET     /twitter                    controllers.Twitter.index
-POST    /twitter/authenticate       controllers.Twitter.authenticate
+GET         /twitter                     controllers.Twitter.index
+POST        /twitter/authenticate        controllers.Twitter.authenticate
 
 # Hotlist
-GET     /hotlist                    controllers.Application.hotlist
+GET         /hotlist                     controllers.Application.hotlist
+GET         /history/*uri                controllers.Application.history(uri)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET         /assets/*file                controllers.Assets.at(path="/public", file)

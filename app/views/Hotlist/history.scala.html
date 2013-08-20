@@ -1,0 +1,9 @@
+@(tweets: List[models.Tweet])
+
+@for(tweet <- tweets) {
+    <div class="tweet">
+        <p><strong>@@@tweet.username</strong></p>
+
+        <p>@tweet.message</p>
+    </div>
+}

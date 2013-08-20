@@ -19,11 +19,11 @@ object ApplicationBuild extends Build {
     "org.twitter4j" % "twitter4j-stream" % "3.0.3",
     "com.twitter" %% "util-collection" % "6.3.6",
     "org.squeryl" %% "squeryl" % "0.9.5-6",
-    "postgresql" % "postgresql" % "9.1-901-1.jdbc4"
+    "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
+    "com.github.nscala-time" %% "nscala-time" % "0.4.2"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here      
   )
-
 }

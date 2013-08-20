@@ -10,9 +10,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object LinkTitleScraperActor {
   sealed trait Message
 
-  case class GetTitleFor(uri: String)
-  case class GetTitlesFor(uris: List[String])
-  case class SetTitleFor(uri: String, title: String)
+  case class GetTitleFor(uri: String) extends Message
+  case class GetTitlesFor(uris: List[String]) extends Message
+  case class SetTitleFor(uri: String, title: String) extends Message
 }
 
 class LinkTitleScraperActor extends Actor {
