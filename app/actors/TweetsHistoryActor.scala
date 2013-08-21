@@ -4,13 +4,12 @@ import akka.actor.Actor
 import models.Tweet
 import com.twitter.util.LruMap
 import lib.Time._
-import actors.TweetsHistoryActor.{AddToHistory, GetHistoryFor}
 
 object TweetsHistoryActor {
   sealed trait Message
 
   case class GetHistoryFor(uri: String) extends Message
-  case class AddToHistory(uri: String, tweet: Tweet)
+  case class AddToHistory(uri: String, tweet: Tweet) extends Message
 }
 
 object TweetsHistory {
@@ -29,6 +28,8 @@ case class TweetsHistory(tweets: List[Tweet]) {
 }
 
 class TweetsHistoryActor extends Actor {
+  import TweetsHistoryActor._
+
   val cacheSize = 50000
 
   val cache = new LruMap[String, TweetsHistory](cacheSize)
