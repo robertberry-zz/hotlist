@@ -11,7 +11,6 @@ object LinkTitleScraperActor {
   sealed trait Message
 
   case class GetTitleFor(uri: String) extends Message
-  case class GetTitlesFor(uris: List[String]) extends Message
   case class SetTitleFor(uri: String, title: String) extends Message
 }
 

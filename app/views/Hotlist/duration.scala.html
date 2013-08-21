@@ -1,0 +1,46 @@
+@(screenName: String, links: Seq[models.ShareScore])
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Guardian Hotlist</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <link href="assets/css/main.css" rel="stylesheet" media="screen">
+        <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="assets/js/history.js"></script>
+    </head>
+    <body>
+
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner"><div class="container"><a class="brand" href="#">Guardian Hotlist</a></div></div>
+        </div>
+
+        <div style="display:none" id="history_hover">
+        </div>
+
+        <div class="container">
+
+            <h1>@screenName hotlist</h1>
+
+            <h2>Most shared in the last 24 hours</h2>
+
+            <table>
+
+            @for(link <- links) {
+
+                <tr>
+                    <td>@link.score</td>
+                    <td><a href="@link.uri" class="show_tweet_history">@link.title</a></td>
+                </tr>
+
+            }
+
+            </table>
+
+        </div>
+
+    <script src="assets/js/bootstrap.min.js"></script>
+</body>
+</html>

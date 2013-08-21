@@ -5,18 +5,39 @@ import play.api.Logger
 import org.joda.time.DateTime
 import ranking.{HotList, StatusUtils}
 import scala.concurrent.ExecutionContext.Implicits.global
-import actors.{TweetsHistoryActor, LinkTitleScraperActor, LinkResolverActor, Actors}
+import actors._
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
 import models.Tweet
 
+object Retweet {
+  def unapply(status: Status) = {
+    if (status.isRetweet) {
+      Some(status.getRetweetedStatus)
+    } else {
+      None
+    }
+  }
+}
+
 class GuardianTweetListener extends StatusListener {
   implicit val urlResolutionTimeout = Timeout(1 second)
 
   def onStatus(status: Status) {
-    Logger.info("Got status: %s says %s".format(status.getUser.getScreenName, status.getText))
+    status match {
+      case Retweet(original) => {
+        Logger.info(s"${status.getUser.getScreenName} retweeted ${original.getUser.getScreenName}: ${original.getText}")
+        processSourceStatus(original)
+      }
+      case _ => {
+        Logger.info(s"${status.getUser.getScreenName} tweeted ${status.getText}")
+        processSourceStatus(status)
+      }
+    }
+  }
 
+  def processSourceStatus(status: Status) {
     val urls = StatusUtils.extractUrls(status.getText)
     val date = new DateTime(status.getCreatedAt)
     urls foreach { url =>
@@ -27,6 +48,7 @@ class GuardianTweetListener extends StatusListener {
 
           Actors.titleScraper ! LinkTitleScraperActor.GetTitleFor(actualUrl)
           Actors.tweetsHistory ! TweetsHistoryActor.AddToHistory(actualUrl, Tweet(status))
+          Actors.linkRanker ! LinkRankingActor.RecordShare(actualUrl, new DateTime(status.getCreatedAt))
         }
       }
     }
