@@ -28,17 +28,15 @@ class GuardianTweetListener extends StatusListener {
     status match {
       case Retweet(original) => {
         Logger.info(s"${status.getUser.getScreenName} retweeted ${original.getUser.getScreenName}: ${original.getText}")
-        processSourceStatus(original)
       }
       case _ => {
         Logger.info(s"${status.getUser.getScreenName} tweeted ${status.getText}")
-        processSourceStatus(status)
       }
     }
-  }
 
-  def processSourceStatus(status: Status) {
-    val urls = StatusUtils.extractUrls(status.getText)
+    val sourceText = sourceTextFor(status)
+
+    val urls = StatusUtils.extractUrls(sourceText)
     val date = new DateTime(status.getCreatedAt)
     urls foreach { url =>
       Actors.linkResolver ? LinkResolverActor.Resolve(url) onSuccess {
@@ -51,6 +49,13 @@ class GuardianTweetListener extends StatusListener {
           Actors.linkRanker ! LinkRankingActor.RecordShare(actualUrl, new DateTime(status.getCreatedAt))
         }
       }
+    }
+  }
+
+  def sourceTextFor(status: Status) = {
+    status match {
+      case Retweet(original) => original.getText
+      case _ => status.getText
     }
   }
 
