@@ -35,7 +35,9 @@ class TweetsHistoryActor extends Actor {
   val cache = new LruMap[String, TweetsHistory](cacheSize)
 
   def receive = {
-    case GetHistoryFor(uri) => sender ! cache.getOrElse(uri, TweetsHistory.empty)
-    case AddToHistory(uri, tweet) => cache += (uri -> cache.getOrElse(uri, TweetsHistory.empty).add(tweet))
+    case GetHistoryFor(uri) => sender ! history(uri)
+    case AddToHistory(uri, tweet) => cache += (uri -> history(uri).add(tweet))
   }
+
+  private def history(uri: String) = cache.getOrElse(uri, TweetsHistory.empty)
 }

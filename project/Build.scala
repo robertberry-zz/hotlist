@@ -11,6 +11,7 @@ object ApplicationBuild extends Build {
     // Add your project dependencies here,
     jdbc,
     anorm,
+    "org.clapper" %% "grizzled-slf4j" % "1.0.1",
     "net.databinder.dispatch" %% "dispatch-core" % "0.10.0",
     "org.jsoup" % "jsoup" % "1.6.1",
     "com.typesafe.akka" % "akka-agent_2.10" % "2.1.4",

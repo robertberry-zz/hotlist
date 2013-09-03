@@ -4,7 +4,6 @@ import play.api._
 import play.api.mvc._
 import twitter4j.TwitterFactory
 import ranking.HotList
-import lib.TwitterAuthListener
 import akka.pattern.ask
 import scala.concurrent.ExecutionContext.Implicits.global
 import actors._
@@ -12,6 +11,7 @@ import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import models.ShareScore
+import conf.Config
 
 trait TitlesHelper {
   def getTitles(uris: Seq[String]): Future[Map[String, Option[String]]] = {
@@ -44,7 +44,7 @@ object Application extends Controller with TitlesHelper {
     Async {
       for {
         links <- HotList.getHottest(20)
-      } yield Ok(views.html.Hotlist.hotlist.render(TwitterAuthListener.screenNameToFollow, links))
+      } yield Ok(views.html.Hotlist.hotlist.render(Config.screenNameToFollow, links))
     }
   }
 
@@ -63,7 +63,7 @@ object Application extends Controller with TitlesHelper {
           (ranking, uri) <- page
         } yield ShareScore(uri, titles(uri) getOrElse uri, ranking)
 
-        Ok(views.html.Hotlist.duration.render(TwitterAuthListener.screenNameToFollow, shares))
+        Ok(views.html.Hotlist.duration.render(Config.screenNameToFollow, shares))
       }
     }
   }
