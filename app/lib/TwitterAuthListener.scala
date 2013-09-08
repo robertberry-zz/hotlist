@@ -1,42 +1,30 @@
 package lib
 
 import twitter4j.auth.AccessToken
-import twitter4j.{FilterQuery, TwitterStreamFactory, TwitterFactory}
-import play.api.Logger
-import conf.Config
+import twitter4j.TwitterFactory
+import akka.actor.{Props, ActorRef}
+import actors.{TwitterLifecycleActor, Actors}
+import grizzled.slf4j.Logging
 
-object TwitterAuthListener {
-  /** Twitter won't let you stream Tweets from more than 5000 users */
-  val MaxFollowUsers = 5000
+object TwitterAuthListener extends Logging {
+  var lifecycleManagementActor: Option[ActorRef] = None
 
   def onAuthenticate(accessToken: AccessToken) {
     val twitter = TwitterFactory.getSingleton
 
     if (!twitter.getAuthorization.isEnabled) {
-      Logger.error("Not authorized against Twitter but trying to set up stream listener!")
+      logger.error("Not authorized against Twitter but trying to set up stream listener!")
 
       return // throw error instead once figured out what is happening
     }
 
-    Logger.info("Loading followers IDs for %s".format(Config.screenNameToFollow))
+    logger.info("Starting lifecycle manager")
 
-    // we don't need to do any pagination and polling here as it should return 5000, which is the max we can listen to
-    // anyway
-    val userIDs = twitter.getFollowersIDs(Config.screenNameToFollow, -1).getIDs
+    lifecycleManagementActor = Some(Actors.system.actorOf(Props[TwitterLifecycleActor]))
 
-    Logger.info("Loaded %d followers".format(userIDs.length))
-
-    // set up the stream listener
-    val factory = TwitterStreamFactory.getSingleton
-
-    factory.setOAuthAccessToken(accessToken)
-
-    Logger.info("Setting up stream listener ...")
-
-    factory.addListener(new GuardianTweetListener())
-
-    factory.filter(new FilterQuery(userIDs))
-
-    Logger.info("Listening to stream")
+    lifecycleManagementActor foreach { actor =>
+      actor ! TwitterLifecycleActor.SetAccessToken(accessToken)
+      actor ! TwitterLifecycleActor.RefreshFollowers
+    }
   }
 }

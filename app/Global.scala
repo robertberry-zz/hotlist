@@ -1,3 +1,4 @@
+import actors.Actors
 import lib.TwitterAuthListener
 import models.TwitterAccessToken
 import org.squeryl.adapters.{H2Adapter, PostgreSqlAdapter}
@@ -64,5 +65,6 @@ object Global extends GlobalSettings {
 
   override def onStop(app: Application) {
     Logger.info("Stopping application")
+    Actors.system.shutdown()
   }
 }

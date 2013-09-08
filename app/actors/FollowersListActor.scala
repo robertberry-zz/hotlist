@@ -3,10 +3,10 @@ package actors
 import akka.actor.{ActorRef, Actor}
 import twitter4j.{TwitterException, TwitterFactory}
 import conf.Config
-import grizzled.slf4j.Logging
 import scala.concurrent.duration._
 import lib.TwitterRateLimitError
 import scala.concurrent.ExecutionContext.Implicits.global
+import akka.event.Logging
 
 object FollowersListActor {
   type TwitterUserId = Long
@@ -22,12 +22,15 @@ object FollowersListActor {
 
   sealed trait OutMessage
 
-  case class Finished(twitterIds: List[TwitterUserId]) extends OutMessage
+  case class Progress(twitterIds: List[TwitterUserId]) extends OutMessage
+  case object Finished extends OutMessage
 }
 
-class FollowersListActor extends Actor with Logging {
+class FollowersListActor extends Actor {
   import FollowersListActor._
   import context.become
+
+  val log = Logging(context.system, this)
 
   private val twitter = TwitterFactory.getSingleton
 
@@ -37,33 +40,39 @@ class FollowersListActor extends Actor with Logging {
 
   private def getPage(cursor: Cursor) {
     try {
-      debug(s"Retrieving page of Twitter followers for cursor $cursor")
+      log.debug(s"Retrieving page of Twitter followers for cursor $cursor")
 
       val response = twitter.getFollowersIDs(Config.screenNameToFollow, -1)
 
       val ids = response.getIDs.toList
 
-      info(s"Got page of ${ids.length} followers")
+      log.info(s"Got page of ${ids.length} followers")
 
       followers ++= ids
+
+      subscriber foreach { _ ! Progress(followers) }
 
       if (response.hasNext) {
         self ! GetPage(response.getNextCursor)
       } else {
-        subscriber foreach { _ ! Finished(followers) }
+        subscriber foreach { _ ! Finished }
         context.stop(self)
       }
     } catch {
       case TwitterRateLimitError(e) => {
-        info(s"Exceeded rate limitation while obtaining list of followers. Retrying after ${e.getRetryAfter} seconds")
+        val rateLimitStatus = e.getRateLimitStatus
 
-        context.system.scheduler.scheduleOnce(e.getRetryAfter seconds) {
+        log.info(s"Exceeded rate limitation while obtaining list of followers. Error:\n${e.getErrorMessage}\n" +
+          s"Retrying after ${rateLimitStatus.getSecondsUntilReset} seconds.")
+
+        context.system.scheduler.scheduleOnce(rateLimitStatus.getSecondsUntilReset seconds) {
           self ! GetPage(cursor)
         }
       }
 
       case e: TwitterException => {
-        warn(s"Twitter ${e.getErrorCode} error encountered while obtaining list of followers: ${e.getErrorMessage}")
+        log.warning(s"Twitter ${e.getErrorCode} error encountered while obtaining list of " +
+          s"followers: ${e.getErrorMessage}")
 
         // think about how to recover from this - maybe need a supervisor actor to take account of it
         throw e
